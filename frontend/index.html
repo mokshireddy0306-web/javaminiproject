@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProjectHub AI | Student Project Collaboration & Team Formation Platform</title>
+  
+  <meta name="description" content="Production-ready platform for student project discovery, intelligent skill-based team formation, cohort visibility isolation, and faculty analytics.">
+  <meta name="theme-color" content="#0F172A">
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/dashboard.css">
+  <link rel="stylesheet" href="styles/animations.css">
+</head>
+<body>
+
+  <!-- Ambient Dynamic Background -->
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="cursor-spotlight" id="cursorSpotlight"></div>
+    <div class="orb-primary"></div>
+    <div class="orb-secondary"></div>
+    <div class="orb-accent"></div>
+    <div class="grid-mesh"></div>
+  </div>
+
+  <div id="app">
+    
+    <!-- TOP NAVBAR -->
+    <header class="top-navbar">
+      <a href="#landing" class="nav-brand" onclick="window.ProjectHubApp.handleLogoClick(event)">
+        <div class="brand-icon-box">
+          <!-- Hexagon Collaboration Node SVG -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-name">ProjectHub <span class="gradient-text-primary">AI</span></span>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <!-- Live Cohort Badge (Active when student is logged in) -->
+        <div class="cohort-badge" id="navCohortBadge" style="display: none;">
+          <span class="cohort-dot"></span>
+          <span>Cohort: CSE-3-A</span>
+        </div>
+
+        <!-- Theme Toggle Button -->
+        <button class="btn btn-secondary btn-sm" id="btnToggleTheme" title="Toggle Dark/Light Mode">
+          🌓 Mode
+        </button>
+
+        <!-- Live Notification Bell & Dropdown Panel -->
+        <div class="notification-wrapper" id="navNotificationWrap" style="display: none;">
+          <button class="btn btn-secondary btn-sm btn-icon" id="btnNotificationBell" onclick="window.ProjectHubApp.toggleNotificationPanel()" title="View Notifications">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+          </button>
+
+          <!-- Flyout Notification Panel -->
+          <div class="notification-panel" id="notificationPanel" style="display: none;">
+            <div class="notification-header">
+              <div style="font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">
+                <span>🔔</span> Notifications
+              </div>
+              <button class="btn btn-secondary btn-sm" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="window.ProjectHubApp.markAllNotificationsRead()">Mark all read</button>
+            </div>
+            <div class="notification-list" id="notificationItemsList">
+              <div style="padding: 1.5rem; text-align: center; color: var(--text-secondary); font-size: 0.82rem;">No new notifications</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Unauthenticated Quick Nav Links (Visible on Landing Page) -->
+        <div id="navGuestLinks" style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-secondary btn-sm" onclick="window.ProjectHubApp.navigate('landing', 'student-login')">Student Login</button>
+          <button class="btn btn-secondary btn-sm" onclick="window.ProjectHubApp.navigate('landing', 'admin-login')">Faculty Admin</button>
+          <button class="btn btn-primary btn-sm" onclick="window.ProjectHubApp.navigate('landing', 'register')">Register</button>
+        </div>
+
+        <!-- Authenticated User Profile Block (Visible on Dashboards) -->
+        <div class="user-profile-menu" id="navUserBlock" style="display: none;">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="user-avatar" id="navUserAvatar" alt="Profile">
+          <div>
+            <div style="font-size: 0.84rem; font-weight: 700;" id="navUserName">Alex Morgan</div>
+            <div style="font-size: 0.72rem; color: var(--text-secondary);" id="navUserRole">CSE-3-A</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btnLogout" style="margin-left: 0.5rem;" onclick="window.ProjectHubApp.logout()">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================================================================== -->
+    <!-- VIEW 1: SINGLE-ENTRY LANDING PAGE                                    -->
+    <!-- Contains: Student Login, Student Register, Admin Login               -->
+    <!-- ==================================================================== -->
+    <main class="app-view" id="view-landing" style="display: block;">
+      <div style="max-width: 820px; margin: 2.5rem auto 4rem; padding: 0 1.25rem;">
+        
+        <!-- Hero Branding Banner -->
+        <div style="text-align: center; margin-bottom: 2.25rem;" class="animate-fade-in-up">
+          <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.85rem; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-full); margin-bottom: 1rem;">
+            <span class="pulsing-dot" style="width: 7px; height: 7px; background: #10B981; border-radius: 50%;"></span>
+            <span style="font-size: 0.78rem; font-weight: 600; color: #60A5FA; letter-spacing: 0.05em;">ACADEMIC YEAR 2026 ACTIVE BATCH</span>
+          </div>
+
+          <h1 style="font-size: 2.6rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.03em; margin-bottom: 0.85rem;">
+            Student Project Collaboration & <br>
+            <span class="gradient-text-primary">Team Formation Platform</span>
+          </h1>
+
+          <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 620px; margin: 0 auto 1.5rem; line-height: 1.6;">
+            Eliminate imbalanced groups. Form high-performing capstone squads through algorithmic skill matching, multi-tenant cohort visibility, and faculty milestone tracking.
+          </p>
+
+          <!-- Floating Feature Badges -->
+          <div class="hero-floating-badges animate-fade-in-up delay-1">
+            <span class="hero-chip chip-glow-blue"><span class="chip-dot"></span>⚡ 98% AI Skill Alignment</span>
+            <span class="hero-chip chip-glow-purple"><span class="chip-dot"></span>🛡️ Cohort-Isolated Teams</span>
+            <span class="hero-chip chip-glow-emerald"><span class="chip-dot"></span>🚀 Live Velocity Tracking</span>
+          </div>
+
+          <!-- Interactive 3D Collaboration Constellation Canvas -->
+          <div class="hero-3d-container animate-fade-in-up delay-2">
+            <canvas id="hero3DCanvas" class="hero-3d-canvas" width="600" height="280"></canvas>
+            <div class="hero-3d-hint">
+              <span>🌐</span> Drag or move cursor to rotate 3D Team Formation Network
+            </div>
+          </div>
+
+          <!-- Quick 1-Click Demo Login Bar -->
+          <div class="glass-card" style="padding: 1rem 1.25rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.85rem; max-width: 700px; margin: 0 auto; background: rgba(15, 23, 42, 0.85); border-color: rgba(59, 130, 246, 0.35);">
+            <span style="font-size: 0.82rem; font-weight: 700; color: #38BDF8; font-family: var(--font-mono); display: flex; align-items: center; gap: 0.35rem;">
+              ⚡ INSTANT EVALUATION:
+            </span>
+            <button class="btn btn-primary btn-sm" onclick="window.ProjectHubAuth.quickLoginStudent()">
+              1-Click Student (Alex Morgan) →
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="window.ProjectHubAuth.quickLoginAdmin()">
+              1-Click Admin (Prof. Sarah Chen) →
+            </button>
+          </div>
+        </div>
+
+        <!-- The Integrated Landing Card (Tabs: Student Login, Student Register, Admin Login) -->
+        <div class="glass-card animate-fade-in-up" style="padding: 2.5rem 2.5rem; max-width: 620px; margin: 0 auto;">
+          
+          <!-- Unified Navigation Tabs -->
+          <div style="display: flex; gap: 0.5rem; background: rgba(0,0,0,0.3); padding: 0.4rem; border-radius: var(--radius-md); margin-bottom: 2rem;">
+            <button class="btn btn-secondary btn-sm auth-tab is-active" style="flex: 1;" data-view="student-login">
+              🎓 Student Login
+            </button>
+            <button class="btn btn-secondary btn-sm auth-tab" style="flex: 1;" data-view="register">
+              📝 Register Student
+            </button>
+            <button class="btn btn-secondary btn-sm auth-tab" style="flex: 1;" data-view="admin-login">
+              🛡️ Faculty Admin
+            </button>
+          </div>
+
+          <!-- TAB 1: STUDENT LOGIN -->
+          <div class="auth-view-panel" id="panel-student-login">
+            <div style="margin-bottom: 1.5rem;">
+              <h2 style="font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em;">Student Authentication</h2>
+              <p style="font-size: 0.86rem; color: var(--text-secondary);">Access your assigned cohort projects, teams, and skill recommendations.</p>
+            </div>
+
+            <form id="studentLoginForm">
+              <div class="form-group">
+                <label class="form-label" for="loginStudentId">USN or Institutional Email</label>
+                <input type="text" id="loginStudentId" class="form-input" placeholder="e.g. 1MS21CS001 or alex.morgan@college.edu" value="1MS21CS001" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="loginStudentPassword">Password</label>
+                <input type="password" id="loginStudentPassword" class="form-input" placeholder="••••••••" value="Password@123" required>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+                Sign In to Student Dashboard →
+              </button>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; font-size: 0.82rem; color: var(--text-secondary);">
+                <span>New student? <a href="#register" style="color: var(--color-primary); font-weight: 600; text-decoration: none;" onclick="window.ProjectHubAuth.switchAuthView('register')">Create account</a></span>
+                <span style="font-family: var(--font-mono); font-size: 0.76rem; color: #34D399;">Demo: 1MS21CS001</span>
+              </div>
+            </form>
+          </div>
+
+          <!-- TAB 2: STUDENT REGISTRATION -->
+          <div class="auth-view-panel" id="panel-register" style="display: none;">
+            <div style="margin-bottom: 1.5rem;">
+              <h2 style="font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em;">Student Registration</h2>
+              <p style="font-size: 0.86rem; color: var(--text-secondary);">Register your academic credentials and skill inventory for cohort matching.</p>
+            </div>
+
+            <form id="studentRegisterForm">
+              <div class="form-group">
+                <label class="form-label" for="regFullName">Full Legal Name</label>
+                <input type="text" id="regFullName" class="form-input" placeholder="e.g. Alex Morgan" required>
+              </div>
+
+              <div style="display: flex; gap: 0.85rem;">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="regUsn">USN / Roll Number</label>
+                  <input type="text" id="regUsn" class="form-input" placeholder="1MS21CS001" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="regEmail">College Email</label>
+                  <input type="email" id="regEmail" class="form-input" placeholder="student@college.edu" required>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 0.65rem;">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="regDept">Department</label>
+                  <select id="regDept" class="form-input form-select" required>
+                    <option value="CSE" selected>CSE</option>
+                    <option value="AIML">AIML</option>
+                    <option value="ISE">ISE</option>
+                    <option value="ECE">ECE</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="regYear">Year</label>
+                  <select id="regYear" class="form-input form-select" required>
+                    <option value="3" selected>3rd Year</option>
+                    <option value="4">4th Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="1">1st Year</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="regSection">Section</label>
+                  <select id="regSection" class="form-input form-select" required>
+                    <option value="A" selected>Section A</option>
+                    <option value="B">Section B</option>
+                    <option value="C">Section C</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="regSkills">Technical Skills (comma separated)</label>
+                <input type="text" id="regSkills" class="form-input" placeholder="e.g. React, Node.js, Python, PostgreSQL, Docker" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="regExp">Experience Level</label>
+                <select id="regExp" class="form-input form-select" required>
+                  <option value="Beginner">Beginner (Coursework & fundamentals)</option>
+                  <option value="Intermediate" selected>Intermediate (Hackathons & projects)</option>
+                  <option value="Advanced">Advanced (Production & internships)</option>
+                </select>
+              </div>
+
+              <div style="display: flex; gap: 0.85rem;">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="regPassword">Password</label>
+                  <input type="password" id="regPassword" class="form-input" placeholder="••••••••" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="regConfirmPassword">Confirm Password</label>
+                  <input type="password" id="regConfirmPassword" class="form-input" placeholder="••••••••" required>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+                Complete Registration & Open Dashboard →
+              </button>
+
+              <div style="text-align: center; margin-top: 1.25rem; font-size: 0.82rem; color: var(--text-secondary);">
+                Already have an account? <a href="#login-student" style="color: var(--color-primary); font-weight: 600; text-decoration: none;" onclick="window.ProjectHubAuth.switchAuthView('student-login')">Sign in</a>
+              </div>
+            </form>
+          </div>
+
+          <!-- TAB 3: ADMIN LOGIN -->
+          <div class="auth-view-panel" id="panel-admin-login" style="display: none;">
+            <div style="margin-bottom: 1.5rem;">
+              <h2 style="font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em;">Faculty Administrator Login</h2>
+              <p style="font-size: 0.86rem; color: var(--text-secondary);">Manage cohort projects, view cohort analytics, and resolve student inquiries.</p>
+            </div>
+
+            <form id="adminLoginForm">
+              <div class="form-group">
+                <label class="form-label" for="loginAdminEmail">Faculty Email</label>
+                <input type="email" id="loginAdminEmail" class="form-input" placeholder="e.g. sarah.chen@college.edu" value="sarah.chen@college.edu" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="loginAdminPassword">Password</label>
+                <input type="password" id="loginAdminPassword" class="form-input" placeholder="••••••••" value="Password@123" required>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+                Sign In to Faculty Admin Dashboard →
+              </button>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; font-size: 0.82rem; color: var(--text-secondary);">
+                <span>Are you a student? <a href="#login-student" style="color: var(--color-primary); font-weight: 600; text-decoration: none;" onclick="window.ProjectHubAuth.switchAuthView('student-login')">Switch to student login</a></span>
+                <span style="font-family: var(--font-mono); font-size: 0.76rem; color: #A78BFA;">Demo: sarah.chen@college.edu</span>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+        <!-- 3 Feature Pillars Showcase Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-top: 3rem;">
+          <div class="glass-card" style="padding: 1.35rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔒</div>
+            <h4 style="font-size: 0.98rem; font-weight: 700; margin-bottom: 0.25rem;">Cohort Isolation</h4>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">Strictly restricts project visibility to matching Department, Year, and Section cohorts.</p>
+          </div>
+          <div class="glass-card" style="padding: 1.35rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎯</div>
+            <h4 style="font-size: 0.98rem; font-weight: 700; margin-bottom: 0.25rem;">AI Skill Matchmaker</h4>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">Calculates mathematical compatibility indices to balance frontend, backend, and data roles.</p>
+          </div>
+          <div class="glass-card" style="padding: 1.35rem;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📊</div>
+            <h4 style="font-size: 0.98rem; font-weight: 700; margin-bottom: 0.25rem;">Executive Analytics</h4>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">Real-time KPI telemetry tracking teams formed, pending candidates, and milestone velocity.</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ==================================================================== -->
+    <!-- VIEW 2: STUDENT DASHBOARD (Role-Based Redirection Target)            -->
+    <!-- ==================================================================== -->
+    <main class="app-view" id="view-student-dashboard" style="display: none;">
+      <div class="dashboard-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+          <div class="sidebar-menu">
+            <a class="sidebar-link student-nav-item is-active" data-module="active-projects">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <span>Active Projects</span>
+            </a>
+            <a class="sidebar-link student-nav-item" data-module="recommended-projects">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>Recommended</span>
+            </a>
+            <a class="sidebar-link student-nav-item" data-module="available-students">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <span>Find Teammates</span>
+            </a>
+            <a class="sidebar-link student-nav-item" data-module="team-requests">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+              <span>Team Requests</span>
+            </a>
+            <a class="sidebar-link student-nav-item" data-module="my-teams">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+              <span>My Squads</span>
+            </a>
+            <a class="sidebar-link student-nav-item" data-module="my-profile">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>Profile & Skills</span>
+            </a>
+          </div>
+
+          <div style="padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+            <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-family: var(--font-mono);">
+              Visibility Isolation Active
+            </div>
+            <div style="font-size: 0.8rem; color: var(--color-primary); font-weight: 600; margin-top: 0.2rem;" id="sidebarCohortLabel">
+              CSE • 3rd Year • Sec A
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main Workspace View Container -->
+        <section class="workspace-content">
+          
+          <!-- Quick Stat KPI Summary Row -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-blue">📁</div>
+              <div>
+                <div class="stat-val" id="studentStatActiveProjects">3</div>
+                <div class="stat-label">Active Projects</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-purple">✉️</div>
+              <div>
+                <div class="stat-val" id="studentStatInvitations">1</div>
+                <div class="stat-label">Invitations</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-cyan">👥</div>
+              <div>
+                <div class="stat-val" id="studentStatTeams">1</div>
+                <div class="stat-label">Joined Teams</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon stat-icon-emerald">🎯</div>
+              <div>
+                <div class="stat-val" id="studentStatMatchRate">92%</div>
+                <div class="stat-label">Skills Fit Index</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODULE 1: ACTIVE PROJECTS -->
+          <div class="student-module-view" id="mod-active-projects">
+            <div class="section-header-bar">
+              <div class="section-title-group">
+                <h2>Active Capstone Projects</h2>
+                <p>Showing approved projects strictly mapped to your assigned cohort.</p>
+              </div>
+            </div>
+            <div class="cards-grid" id="activeProjectsGrid"></div>
+          </div>
+
+          <!-- MODULE 2: RECOMMENDED PROJECTS -->
+          <div class="student-module-view" id="mod-recommended-projects" style="display: none;">
+            <div class="section-header-bar">
+              <div class="section-title-group">
+                <h2>AI Recommended Projects</h2>
+                <p>Ranked using mathematical skill intersection and technical compatibility scores.</p>
+              </div>
+            </div>
+            <div class="cards-grid" id="recommendedProjectsGrid"></div>
+          </div>
+
+          <!-- MODULE 3: AVAILABLE STUDENTS -->
+          <div class="student-module-view" id="mod-available-students" style="display: none;">
+            <div class="section-header-bar">
+              <div class="section-title-group">
+                <h2>Discover Peer Teammates</h2>
+                <p>Find students with complementary frontend, backend, AI/ML, and design skills.</p>
+              </div>
+            </div>
+            <div class="cards-grid" id="availableStudentsGrid"></div>
+          </div>
+
+          <!-- MODULE 4: TEAM REQUESTS -->
+          <div class="student-module-view" id="mod-team-requests" style="display: none;">
+            <div class="section-header-bar">
+              <div class="section-title-group">
+                <h2>Collaboration & Team Requests</h2>
+                <p>Review inbound candidate applications, incoming squad invitations, and sent requests.</p>
+              </div>
+            </div>
+
+            <!-- Sub Navigation Tabs for Requests -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; background: rgba(0,0,0,0.25); padding: 0.35rem; border-radius: var(--radius-md); max-width: 480px;">
+              <button class="btn btn-secondary btn-sm req-tab is-active" style="flex: 1;" onclick="StudentDashboard.switchRequestTab('received')">
+                📥 Received Invitations <span class="badge badge-rose" id="badgeReqReceivedCount" style="display: none; margin-left: 0.35rem;">0</span>
+              </button>
+              <button class="btn btn-secondary btn-sm req-tab" style="flex: 1;" onclick="StudentDashboard.switchRequestTab('sent')">
+                📤 Sent Invitations
+              </button>
+            </div>
+
+            <!-- Content Area for Received -->
+            <div id="receivedRequestsList"></div>
+
+            <!-- Content Area for Sent -->
+            <div id="sentRequestsList" style="display: none;"></div>
+          </div>
+
+          <!-- MODULE 5: MY TEAMS -->
+          <div class="student-module-view" id="mod-my-teams" style="display: none;">
+            <div class="section-header-bar">
+              <div class="section-title-group">
+                <h2>Enrolled Project Squads</h2>
+                <p>Track team roster, active role assignments, and project milestone velocity.</p>
+              </div>
+            </div>
+            <div id="myTeamsContainer"></div>
+          </div>
+
+          <!-- MODULE 6: MY PROFILE -->
+          <div class="student-module-view" id="mod-my-profile" style="display: none;">
+            <div class="section-header-bar">
+              <div class="section-title-group">
+                <h2>Student Profile & Skill Inventory</h2>
+                <p>Your technical skillset directly impacts algorithmic matching accuracy.</p>
+              </div>
+            </div>
+
+            <div class="glass-card" style="padding: 2rem; max-width: 700px;">
+              <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="student-avatar-lg" alt="Profile">
+                <div>
+                  <h3 id="profileName" style="font-size: 1.35rem; font-weight: 800;">Alex Morgan</h3>
+                  <div id="profileUsn" style="font-family: var(--font-mono); color: var(--color-primary); font-weight: 700;">1MS21CS001</div>
+                  <div id="profileCohort" style="font-size: 0.84rem; color: var(--text-secondary);">CSE • 3rd Year • Section A</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Professional Bio / Portfolio Pitch</label>
+                <textarea id="profileBio" class="form-input" style="height: 90px; resize: none;"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Active Technical Skills</label>
+                <div id="profileSkillList" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;"></div>
+              </div>
+
+              <div style="display: flex; gap: 0.85rem; margin-top: 1.25rem;">
+                <button class="btn btn-primary" onclick="StudentDashboard.saveProfileUpdates()">
+                  Save Profile Updates
+                </button>
+                <button class="btn btn-secondary" onclick="StudentDashboard.openRaiseQueryModal()">
+                  ❓ Raise Faculty Inquiry
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+
+    <!-- ==================================================================== -->
+    <!-- VIEW 3: ADMIN DASHBOARD (Role-Based Redirection Target)              -->
+    <!-- ==================================================================== -->
+    <main class="app-view" id="view-admin-dashboard" style="display: none;">
+      <div style="max-width: 1400px; margin: 0 auto; padding: 2.5rem 2rem;">
+        
+        <div class="section-header-bar">
+          <div class="section-title-group">
+            <span class="badge badge-purple">FACULTY OPERATIONS</span>
+            <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 0.25rem;">Capstone Analytics & Management</h1>
+            <p>Monitor cohort team saturation, publish isolated projects, and resolve student inquiries.</p>
+          </div>
+        </div>
+
+        <!-- 7 Analytics KPI Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-blue">📊</div>
+            <div>
+              <div class="stat-val" id="kpiTotalProjects">5</div>
+              <div class="stat-label">Total Projects</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-cyan">🚀</div>
+            <div>
+              <div class="stat-val" id="kpiActiveProjects">4</div>
+              <div class="stat-label">Active Projects</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-purple">🎓</div>
+            <div>
+              <div class="stat-val" id="kpiStudents">48</div>
+              <div class="stat-label">Registered Students</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-emerald">🛡️</div>
+            <div>
+              <div class="stat-val" id="kpiTeamsFormed">12</div>
+              <div class="stat-label">Teams Formed</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-blue">⏳</div>
+            <div>
+              <div class="stat-val" id="kpiPendingStudents">14</div>
+              <div class="stat-label">Pending Students</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-emerald">🏆</div>
+            <div>
+              <div class="stat-val" id="kpiCompletedProjects">2</div>
+              <div class="stat-label">Completed Projects</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-purple">❓</div>
+            <div>
+              <div class="stat-val" id="kpiOpenQueries">3</div>
+              <div class="stat-label">Open Queries</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 Column Admin Grid: Create Project & Queries -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+          
+          <!-- Column 1: Create Project Form -->
+          <div class="glass-card" style="padding: 2.25rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+              <h3 style="font-size: 1.35rem; font-weight: 800;">Publish Capstone Project</h3>
+              <span class="badge badge-blue">Cohort Filter Enabled</span>
+            </div>
+            <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+              Enforce strict section visibility. Only students in the assigned Department, Year, and Section can view this project.
+            </p>
+
+            <form id="createProjectForm">
+              <div class="form-group">
+                <label class="form-label" for="newProjTitle">Project Name</label>
+                <input type="text" id="newProjTitle" class="form-input" placeholder="e.g. AI Financial Fraud Detection" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="newProjDesc">Description & Evaluation Objectives</label>
+                <textarea id="newProjDesc" class="form-input" style="height: 80px; resize: none;" placeholder="Provide scope, architectural guidelines, and dataset constraints..." required></textarea>
+              </div>
+
+              <div style="display: flex; gap: 0.65rem;">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="newProjDept">Department</label>
+                  <select id="newProjDept" class="form-input form-select" required>
+                    <option value="CSE" selected>CSE</option>
+                    <option value="AIML">AIML</option>
+                    <option value="ISE">ISE</option>
+                    <option value="ECE">ECE</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="newProjYear">Target Year</label>
+                  <select id="newProjYear" class="form-input form-select" required>
+                    <option value="3" selected>Year 3</option>
+                    <option value="4">Year 4</option>
+                    <option value="2">Year 2</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="newProjSection">Target Section</label>
+                  <select id="newProjSection" class="form-input form-select" required>
+                    <option value="A" selected>Section A</option>
+                    <option value="B">Section B</option>
+                    <option value="C">Section C</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="newProjSkills">Required Skills (comma-separated)</label>
+                <input type="text" id="newProjSkills" class="form-input" placeholder="e.g. Python, PyTorch, React, PostgreSQL" required>
+              </div>
+
+              <div style="display: flex; gap: 0.85rem;">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="newProjDeadline">Final Deadline</label>
+                  <input type="date" id="newProjDeadline" class="form-input" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="newProjTeamSize">Team Size Limit</label>
+                  <input type="number" id="newProjTeamSize" class="form-input" value="4" min="2" max="6" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label" for="newProjPriority">Priority Tier</label>
+                  <select id="newProjPriority" class="form-input form-select">
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH" selected>High</option>
+                    <option value="CRITICAL">Critical</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 0.85rem; margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                  Publish Project →
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="window.ProjectHubApp.showToast('Draft state saved locally.', 'info')">
+                  Save Draft
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Column 2: Student Queries Resolution -->
+          <div>
+            <div class="glass-card" style="padding: 2.25rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.35rem; font-weight: 800;">Student Inquiries & Escalations</h3>
+                <span class="badge badge-amber">Support Stream</span>
+              </div>
+              <p style="font-size: 0.86rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                Direct communication channel for clarification on dataset licensing, GPU clusters, and disputes.
+              </p>
+
+              <div id="adminQueriesList"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Section 2: Published Cohort Projects Management -->
+        <div style="margin-top: 3rem;">
+          <div class="section-header-bar">
+            <div class="section-title-group">
+              <h2 style="font-size: 1.45rem; font-weight: 800;">Cohort Project Catalogue & Live Roster</h2>
+              <p>Monitor cohort saturation, active squad counts, and manage live project allocations.</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="AdminDashboard.loadProjects()">🔄 Refresh Catalogue</button>
+          </div>
+          <div class="cards-grid" id="adminProjectsGrid"></div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Invite Teammate Modal -->
+  <div class="modal-overlay" id="modalInviteStudent">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 800;">Send Squad Invitation</h3>
+        <button class="btn btn-secondary btn-sm" onclick="StudentDashboard.closeInviteModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1.25rem; padding: 0.85rem; background: rgba(255,255,255,0.04); border-radius: var(--radius-md);">
+          <img src="" id="modalInviteStudentAvatar" style="width: 44px; height: 44px; border-radius: var(--radius-sm); object-fit: cover;">
+          <div>
+            <div id="modalInviteStudentName" style="font-size: 1.05rem; font-weight: 700;">Student Name</div>
+            <div id="modalInviteStudentSkills" style="font-size: 0.78rem; color: var(--text-secondary);">Skills list</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="modalInviteTeamSelect">Select Your Squad</label>
+          <select id="modalInviteTeamSelect" class="form-input form-select" required></select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="modalInviteMessage">Invitation Note / Role Pitch</label>
+          <textarea id="modalInviteMessage" class="form-input" style="height: 80px; resize: none;" placeholder="Hey, we are forming a capstone team and need your expertise..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="StudentDashboard.closeInviteModal()">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitInvitation" onclick="StudentDashboard.submitInvitation()">Send Invitation →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Rack -->
+  <div class="toast-rack" id="toastRack" aria-live="polite"></div>
+
+  <!-- ==================================================================== -->
+  <!-- 3D INTERACTIVE MODALS                                                -->
+  <!-- ==================================================================== -->
+
+  <!-- 1. Project Details 3D Modal -->
+  <div class="modal-overlay" id="modalProjectDetails">
+    <div class="modal-card tilt-3d" style="max-width: 680px;">
+      <div class="modal-header">
+        <div>
+          <span class="badge badge-blue" id="modalProjPriority">CRITICAL</span>
+          <h3 style="font-size: 1.35rem; font-weight: 800; margin-top: 0.35rem;" id="modalProjTitle">Project Details</h3>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);" id="modalProjCohort">Cohort: CSE-3-A</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="StudentDashboard.closeProjectDetailsModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom: 1.25rem;">
+          <h4 style="font-size: 0.84rem; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.35rem;">Project Overview & Evaluation Scope</h4>
+          <p id="modalProjDesc" style="font-size: 0.92rem; color: var(--text-primary); line-height: 1.6; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);"></p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+          <div style="padding: 0.85rem; background: rgba(255,255,255,0.03); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase;">Team Capacity</div>
+            <div style="font-size: 1.15rem; font-weight: 700; margin-top: 0.2rem;" id="modalProjSlots">4 Total • 2 Remaining</div>
+          </div>
+          <div style="padding: 0.85rem; background: rgba(255,255,255,0.03); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase;">Submission Deadline</div>
+            <div style="font-size: 1.15rem; font-weight: 700; margin-top: 0.2rem; color: #60A5FA;" id="modalProjDeadline">2026-12-15</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <h4 style="font-size: 0.84rem; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.45rem;">Mandatory Tech Stack & Skills</h4>
+          <div id="modalProjSkills" style="display: flex; flex-wrap: wrap; gap: 0.45rem;"></div>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.84rem; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.45rem;">Enrolled Squads</h4>
+          <div id="modalProjTeamsList" style="font-size: 0.86rem; color: var(--text-secondary);"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="StudentDashboard.closeProjectDetailsModal()">Close</button>
+        <button class="btn btn-primary" id="btnModalStartSquad" onclick="StudentDashboard.openCreateTeamModal()">Start Squad →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Student Profile 3D Modal -->
+  <div class="modal-overlay" id="modalStudentProfile">
+    <div class="modal-card tilt-3d" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 800;">Candidate Technical Profile</h3>
+        <button class="btn btn-secondary btn-sm" onclick="StudentDashboard.closeStudentProfileModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; padding: 1.25rem; background: rgba(255,255,255,0.03); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <img src="" id="modalProfileAvatar" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary);">
+          <div>
+            <h3 id="modalProfileName" style="font-size: 1.3rem; font-weight: 800;">Student Name</h3>
+            <div id="modalProfileCohort" style="font-size: 0.85rem; color: var(--color-primary); font-weight: 600;">CSE • 3rd Year • Sec A</div>
+            <div id="modalProfileLevel" style="margin-top: 0.35rem;"><span class="badge badge-purple">Intermediate</span></div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.35rem;">Professional Bio & Portfolio</h4>
+          <p id="modalProfileBio" style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;"></p>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 0.45rem;">Verified Technical Skills</h4>
+          <div id="modalProfileSkills" style="display: flex; flex-wrap: wrap; gap: 0.45rem;"></div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; background: rgba(0,0,0,0.2); border-radius: var(--radius-md);">
+          <span style="font-size: 0.82rem; color: var(--text-secondary);">Availability Status:</span>
+          <span class="badge badge-green" id="modalProfileStatus">● AVAILABLE</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="StudentDashboard.closeStudentProfileModal()">Close</button>
+        <button class="btn btn-primary" id="btnModalProfileInvite" onclick="StudentDashboard.triggerInviteFromProfile()">Send Squad Invitation →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Start Squad 3D Modal -->
+  <div class="modal-overlay" id="modalCreateTeam">
+    <div class="modal-card tilt-3d" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 800;">Register New Squad</h3>
+        <button class="btn btn-secondary btn-sm" onclick="StudentDashboard.closeCreateTeamModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="createTeamNameInput">Squad / Team Name</label>
+          <input type="text" id="createTeamNameInput" class="form-input" placeholder="e.g. HyperSquad AI, CloudPioneers" value="NeuralSquad AI" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="createTeamProjectSelect">Assigned Capstone Project</label>
+          <select id="createTeamProjectSelect" class="form-input form-select" required></select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Team Leadership & Role</label>
+          <input type="text" class="form-input" value="Squad Leader & System Architect" disabled style="opacity: 0.7;">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="StudentDashboard.closeCreateTeamModal()">Cancel</button>
+        <button class="btn btn-primary" id="btnConfirmCreateTeam" onclick="StudentDashboard.submitCreateTeam()">Create Squad Now →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Raise Faculty Inquiry 3D Modal -->
+  <div class="modal-overlay" id="modalRaiseQuery">
+    <div class="modal-card tilt-3d" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 800;">Raise Query to Faculty Administrator</h3>
+        <button class="btn btn-secondary btn-sm" onclick="StudentDashboard.closeRaiseQueryModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="querySubjectInput">Inquiry Subject / Topic</label>
+          <input type="text" id="querySubjectInput" class="form-input" placeholder="e.g. Dataset licensing for NLP models" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="queryCategorySelect">Category</label>
+          <select id="queryCategorySelect" class="form-input form-select">
+            <option value="TECHNICAL" selected>Technical Architecture & Datasets</option>
+            <option value="COHORT">Cohort & Section Allocation</option>
+            <option value="EVALUATION">Milestone Evaluation Rubric</option>
+            <option value="DISPUTE">Team Formation Dispute</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="queryDetailsInput">Detailed Description of Query</label>
+          <textarea id="queryDetailsInput" class="form-input" style="height: 100px; resize: none;" placeholder="Explain your question clearly for Prof. Sarah Chen to review..." required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="StudentDashboard.closeRaiseQueryModal()">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitQuery" onclick="StudentDashboard.submitRaiseQuery()">Submit Query →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Faculty Query Resolution 3D Modal -->
+  <div class="modal-overlay" id="modalAdminReply">
+    <div class="modal-card tilt-3d" style="max-width: 600px;">
+      <div class="modal-header">
+        <div>
+          <span class="badge badge-purple">FACULTY REVIEW</span>
+          <h3 style="font-size: 1.25rem; font-weight: 800; margin-top: 0.35rem;">Resolve Student Inquiry</h3>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="AdminDashboard.closeReplyModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="padding: 1rem; background: rgba(255,255,255,0.03); border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <strong id="modalReplyStudentName" style="color: var(--text-primary);">Student Name</strong>
+            <span id="modalReplyStudentUsn" style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--color-primary);">1MS21CS001</span>
+          </div>
+          <div id="modalReplySubject" style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.35rem; color: #93C5FD;">Subject Title</div>
+          <p id="modalReplyText" style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.45;"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="adminReplyInput">Faculty Official Resolution / Instructions</label>
+          <textarea id="adminReplyInput" class="form-input" style="height: 110px; resize: none;" placeholder="Provide your academic guidance or approval here. This will be visible on the student's dashboard and trigger a notification..." required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="AdminDashboard.closeReplyModal()">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitAdminReply" onclick="AdminDashboard.submitReply()">Publish Resolution & Resolve →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Scripts -->
+  <script src="scripts/mockData.js"></script>
+  <script src="scripts/api.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script src="scripts/student-dashboard.js"></script>
+  <script src="scripts/admin-dashboard.js"></script>
+  <script src="scripts/three-d-engine.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+/* ==========================================================================
+   PROJECTHUB AI - DESIGN SYSTEM & MAIN STYLES
+   Linear, Vercel, Framer & Stripe-inspired Modern SaaS Theme
+   ========================================================================== */
+
+:root {
+  /* Color Palette - Dark Theme Default */
+  --bg-primary: #0F172A;      /* Deep Navy */
+  --bg-secondary: #0B1120;
+  --bg-surface: #1E293B;
+  --bg-surface-elevated: #334155;
+  --bg-glass: rgba(15, 23, 42, 0.78);
+  --bg-glass-card: rgba(30, 41, 59, 0.65);
+  --bg-input: rgba(15, 23, 42, 0.6);
+
+  --border-color: rgba(255, 255, 255, 0.09);
+  --border-focus: #3B82F6;
+  --border-highlight: rgba(255, 255, 255, 0.16);
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-inverse: #0F172A;
+
+  /* Brand Accents */
+  --color-primary: #3B82F6;       /* Royal Blue */
+  --color-primary-hover: #2563EB;
+  --color-primary-glow: rgba(59, 130, 246, 0.35);
+
+  --color-secondary: #6366F1;     /* Indigo Accent */
+  --color-accent: #06B6D4;        /* Cyan Neon */
+  --color-emerald: #10B981;       /* Success */
+  --color-emerald-bg: rgba(16, 185, 129, 0.12);
+  --color-amber: #F59E0B;         /* Warning */
+  --color-amber-bg: rgba(245, 158, 11, 0.12);
+  --color-rose: #F43F5E;          /* Danger / High Priority */
+  --color-rose-bg: rgba(244, 63, 94, 0.12);
+  --color-purple: #8B5CF6;
+
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing & Radii */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Premium Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
+  --shadow-card: 0 18px 40px -10px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--border-color);
+  --shadow-glow: 0 0 25px -3px rgba(59, 130, 246, 0.4);
+
+  /* Transitions */
+  --trans-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --trans-normal: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --trans-smooth: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Light Theme Mode Overrides */
+[data-theme="light"] {
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #EDF2F7;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #F1F5F9;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --bg-glass-card: rgba(255, 255, 255, 0.88);
+  --bg-input: #FFFFFF;
+
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-highlight: rgba(0, 0, 0, 0.15);
+
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --text-inverse: #FFFFFF;
+
+  --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  line-height: 1.5;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface-elevated);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Ambient Background Glow Mesh */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Interactive Cursor Spotlight Glow */
+.cursor-spotlight {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 65%);
+  filter: blur(80px);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  will-change: left, top;
+}
+
+.orb-primary {
+  position: absolute;
+  width: 650px;
+  height: 650px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.24) 0%, transparent 70%);
+  filter: blur(100px);
+  top: -150px;
+  left: -100px;
+  animation: floatOrb1 20s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+.orb-secondary {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%);
+  filter: blur(120px);
+  bottom: -200px;
+  right: -100px;
+  animation: floatOrb2 25s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+.orb-accent {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, transparent 70%);
+  filter: blur(110px);
+  top: 35%;
+  left: 35%;
+  animation: floatOrb3 18s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+.grid-mesh {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 60%, transparent 95%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 60%, transparent 95%);
+  animation: gridDrift 40s linear infinite;
+}
+
+/* App Master Layout */
+#app {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Gradient Text Utilities with Flow Animation */
+.gradient-text-primary {
+  background: linear-gradient(135deg, #60A5FA 0%, #38BDF8 35%, #A78BFA 70%, #60A5FA 100%);
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientFlow 7s ease infinite;
+}
+
+.gradient-text-accent {
+  background: linear-gradient(135deg, #818CF8 0%, #C084FC 50%, #F472B6 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientFlow 5s ease infinite;
+}
+
+/* Hero Floating Feature Pills */
+.hero-floating-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 600;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.hero-chip:hover {
+  transform: translateY(-4px) scale(1.05);
+}
+
+.hero-chip:nth-child(1) {
+  animation: floatBadge1 4.5s ease-in-out infinite;
+}
+
+.hero-chip:nth-child(2) {
+  animation: floatBadge2 5.2s ease-in-out infinite 0.5s;
+}
+
+.hero-chip:nth-child(3) {
+  animation: floatBadge3 4.8s ease-in-out infinite 1s;
+}
+
+.chip-glow-blue {
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #93C5FD;
+}
+
+.chip-glow-purple {
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #C4B5FD;
+}
+
+.chip-glow-emerald {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6EE7B7;
+}
+
+.chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}

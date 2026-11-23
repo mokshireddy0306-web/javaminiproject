@@ -1,0 +1,24 @@
+<!-- Component: Project Card Template -->
+<div class="glass-card project-card animate-fade-in-up">
+  <div>
+    <div class="card-top">
+      <span class="badge badge-blue">HIGH PRIORITY</span>
+      <span class="cohort-badge"><span class="cohort-dot"></span>CSE-3-A</span>
+    </div>
+    <h3 class="project-title">{{title}}</h3>
+    <p class="project-desc">{{description}}</p>
+  </div>
+
+  <div>
+    <div class="project-meta-row">
+      <span>👥 Team Size: <strong>{{teamSize}}</strong></span>
+      <span>⚡ Remaining: <strong style="color: var(--color-emerald);">{{remainingSlots}} slots</strong></span>
+      <span>📅 {{deadline}}</span>
+    </div>
+    <div class="project-skills-list">{{skillsList}}</div>
+    <div class="project-card-footer">
+      <button class="btn btn-secondary btn-sm">View Details</button>
+      <button class="btn btn-primary btn-sm">Join Team</button>
+    </div>
+  </div>
+</div>

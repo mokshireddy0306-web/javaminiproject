@@ -1,0 +1,20 @@
+<!-- Component: Team Formation Modal -->
+<div class="modal-overlay" id="teamModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 style="font-size: 1.25rem; font-weight: 800;">Register Project Squad</h3>
+      <button class="btn btn-secondary btn-sm" onclick="this.closest('.modal-overlay').classList.remove('is-open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Team Name</label>
+        <input type="text" id="modalTeamName" class="form-input" placeholder="e.g. NeuralPioneers">
+      </div>
+      <p style="font-size: 0.82rem; color: var(--text-secondary);">As leader, you can invite peers and review incoming membership applications.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').classList.remove('is-open')">Cancel</button>
+      <button class="btn btn-primary" id="btnModalSubmitTeam">Create Squad →</button>
+    </div>
+  </div>
+</div>

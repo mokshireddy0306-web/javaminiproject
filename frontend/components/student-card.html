@@ -1,0 +1,22 @@
+<!-- Component: Student Card Template -->
+<div class="glass-card student-card animate-fade-in-up">
+  <div>
+    <div class="student-card-header">
+      <img src="{{avatarUrl}}" class="student-avatar-lg" alt="{{fullName}}">
+      <div>
+        <h4 class="student-name">{{fullName}}</h4>
+        <span class="student-cohort">{{department}} • Year {{year}} • Sec {{section}}</span>
+        <div><span class="badge badge-purple">{{experienceLevel}}</span></div>
+      </div>
+    </div>
+    <p style="font-size: 0.84rem; color: var(--text-secondary);">{{bio}}</p>
+  </div>
+
+  <div>
+    <div class="project-skills-list">{{skillsChips}}</div>
+    <div class="project-card-footer">
+      <span class="badge badge-green">● {{availabilityStatus}}</span>
+      <button class="btn btn-primary btn-sm">Send Team Request</button>
+    </div>
+  </div>
+</div>
